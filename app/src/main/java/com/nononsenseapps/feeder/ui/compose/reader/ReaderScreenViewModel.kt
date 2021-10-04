@@ -93,10 +93,12 @@ class ReaderScreenViewModel(di: DI, private val state: SavedStateHandle) : DIAwa
             combine(
                 _textToDisplay.asFlow(),
                 repository.getFeedItem(currentItemId),
-            ) { textToDisplay, feedItem ->
+                repository.linkOpener,
+            ) { textToDisplay, feedItem, linkOpener ->
                 ReaderScreenViewState(
                     textToDisplay = textToDisplay,
                     currentItem = feedItem ?: error("Missing feed item?!"),
+                    linkOpener = linkOpener,
                 )
             }.collect {
                 _viewState.value = it
@@ -108,7 +110,7 @@ class ReaderScreenViewModel(di: DI, private val state: SavedStateHandle) : DIAwa
 @Immutable
 data class ReaderScreenViewState(
     val currentItem: FeedItemWithFeed = FeedItemWithFeed(),
-    val linkOpener: LinkOpener = LinkOpener.CUSTOM_TAB,
+    val linkOpener: LinkOpener = LinkOpener.READER_VIEWER,
     // Set by default by item itself - but has a state set in SavedState whihc overrides it
     val textToDisplay: TextToDisplay = TextToDisplay.DEFAULT,
 )

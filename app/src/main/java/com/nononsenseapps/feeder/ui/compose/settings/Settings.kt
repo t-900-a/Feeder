@@ -382,7 +382,8 @@ fun SettingsList(
             currentValue = currentLinkOpenerValue.asLinkOpenerOption(),
             values = listOf(
                 LinkOpener.CUSTOM_TAB.asLinkOpenerOption(),
-                LinkOpener.DEFAULT_BROWSER.asLinkOpenerOption()
+                LinkOpener.DEFAULT_BROWSER.asLinkOpenerOption(),
+                LinkOpener.READER_VIEWER.asLinkOpenerOption(),
             ),
             title = stringResource(id = R.string.open_links_with),
             onSelection = {

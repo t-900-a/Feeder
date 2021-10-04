@@ -42,6 +42,7 @@ import com.nononsenseapps.feeder.ui.compose.feed.FeedScreen
 import com.nononsenseapps.feeder.ui.compose.feed.FeedScreenViewModel
 import com.nononsenseapps.feeder.ui.compose.feed.isFeed
 import com.nononsenseapps.feeder.ui.compose.reader.ReaderScreen
+import com.nononsenseapps.feeder.ui.compose.readerviewer.ReaderViewerScreen
 import com.nononsenseapps.feeder.ui.compose.searchfeed.SearchFeedScreen
 import com.nononsenseapps.feeder.ui.compose.settings.SettingsScreen
 import com.nononsenseapps.feeder.ui.compose.theme.FeederTheme
@@ -194,6 +195,9 @@ class MainActivity : DIAwareComponentActivity() {
                             )
                         }
                     },
+                    onNavigateToLink = { link ->
+                        navController.navigate("readerviewer?link=$link")
+                    },
                 ) {
                     navController.popEntireBackStack()
                     navController.navigate(
@@ -272,6 +276,24 @@ class MainActivity : DIAwareComponentActivity() {
                     },
                     settingsViewModel = backStackEntry.DIAwareViewModel(),
                 )
+            }
+            composable(
+                "readerviewer?link={link}",
+                arguments = listOf(
+                    navArgument("link") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { backStackEntry ->
+                ReaderViewerScreen(
+                    viewModel = backStackEntry.DIAwareViewModel(),
+                    readAloudViewModel = backStackEntry.DIAwareViewModel(),
+                    onLinkClick = { link ->
+                        navController.navigate("readerviewer?link=$link")
+                    }
+                ) {
+                    navController.popBackStack()
+                }
             }
         }
     }

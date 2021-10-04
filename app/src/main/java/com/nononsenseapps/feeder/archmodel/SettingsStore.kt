@@ -135,6 +135,7 @@ class SettingsStore(override val di: DI) : DIAware {
     private val _linkOpener = MutableStateFlow(
         when (sp.getStringNonNull(PREF_OPEN_LINKS_WITH, PREF_VAL_OPEN_WITH_CUSTOM_TAB)) {
             PREF_VAL_OPEN_WITH_BROWSER -> LinkOpener.DEFAULT_BROWSER
+            PREF_VAL_OPEN_WITH_READER -> LinkOpener.READER_VIEWER
             else -> LinkOpener.CUSTOM_TAB
         }
     )
@@ -146,6 +147,7 @@ class SettingsStore(override val di: DI) : DIAware {
             when (value) {
                 LinkOpener.CUSTOM_TAB -> PREF_VAL_OPEN_WITH_CUSTOM_TAB
                 LinkOpener.DEFAULT_BROWSER -> PREF_VAL_OPEN_WITH_BROWSER
+                LinkOpener.READER_VIEWER -> PREF_VAL_OPEN_WITH_READER
             }
         ).apply()
     }
@@ -316,6 +318,7 @@ enum class LinkOpener(
 ) {
     CUSTOM_TAB(R.string.open_in_custom_tab),
     DEFAULT_BROWSER(R.string.open_in_default_browser),
+    READER_VIEWER(R.string.open_in_reader),
 }
 
 enum class SyncFrequency(

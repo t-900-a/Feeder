@@ -9,6 +9,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.nononsenseapps.feeder.blob.blobFullFile
 import com.nononsenseapps.feeder.blob.blobFullOutputStream
+import com.nononsenseapps.feeder.blob.blobOutputStream
 import com.nononsenseapps.feeder.db.room.FeedItemForFetching
 import com.nononsenseapps.feeder.db.room.ID_UNSET
 import java.io.File
@@ -27,7 +28,7 @@ const val ARG_FEED_ITEM_LINK = "feed_item_link"
 
 fun scheduleFullTextParse(
     di: DI,
-    feedItem: FeedItemForFetching
+    feedItem: FeedItemForFetching,
 ) {
     val workRequest = OneTimeWorkRequestBuilder<FullTextWorker>()
 
@@ -43,7 +44,7 @@ fun scheduleFullTextParse(
 
 class FullTextWorker(
     val context: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams), DIAware {
     override val di: DI by closestDI(context)
     private val okHttpClient: OkHttpClient by instance()
@@ -79,7 +80,7 @@ class FullTextWorker(
 suspend fun parseFullArticleIfMissing(
     feedItem: FeedItemForFetching,
     okHttpClient: OkHttpClient,
-    filesDir: File
+    filesDir: File,
 ): Boolean {
     val fullArticleFile = blobFullFile(itemId = feedItem.id, filesDir = filesDir)
     return fullArticleFile.isFile || parseFullArticle(
@@ -92,7 +93,7 @@ suspend fun parseFullArticleIfMissing(
 suspend fun parseFullArticle(
     feedItem: FeedItemForFetching,
     okHttpClient: OkHttpClient,
-    filesDir: File
+    filesDir: File,
 ): Pair<Boolean, Throwable?> = withContext(Dispatchers.Default) {
     return@withContext try {
         val url = feedItem.link ?: return@withContext false to null
@@ -117,6 +118,33 @@ suspend fun parseFullArticle(
         Log.e(
             "FeederFullText",
             "Failed to get fulltext for ${feedItem.link}: ${e.message}",
+            e
+        )
+        false to e
+    }
+}
+
+suspend fun parseFullArticle(
+    link: String,
+    okHttpClient: OkHttpClient,
+    filesDir: File,
+): Pair<Boolean, Throwable?> = withContext(Dispatchers.Default) {
+    return@withContext try {
+        val html: String = okHttpClient.curl(URL(link)) ?: return@withContext false to null
+
+        val article = Readability4JExtended(link, html).parse()
+
+        withContext(Dispatchers.IO) {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            blobOutputStream(URL(link), filesDir).bufferedWriter().use { writer ->
+                writer.write(article.contentWithUtf8Encoding)
+            }
+        }
+        true to null
+    } catch (e: Throwable) {
+        Log.e(
+            "FeederFullText",
+            "Failed to get fulltext for $link: ${e.message}",
             e
         )
         false to e

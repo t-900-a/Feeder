@@ -91,6 +91,7 @@ fun ReaderScreen(
     readerScreenViewModel: ReaderScreenViewModel,
     readAloudViewModel: TextToSpeechViewModel,
     onNavigateToFeed: (feedId: Long?) -> Unit,
+    onNavigateToLink: (link: String) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     val viewState by readerScreenViewModel.viewState.collectAsState()
@@ -224,7 +225,8 @@ fun ReaderScreen(
                                     link = link,
                                     linkOpener = viewState.linkOpener,
                                     context = context,
-                                    toolbarColor = toolbarColor
+                                    toolbarColor = toolbarColor,
+                                    navigateToReaderViewer = onNavigateToLink,
                                 )
                             }
                         )
@@ -251,7 +253,8 @@ fun ReaderScreen(
                                     link = link,
                                     linkOpener = viewState.linkOpener,
                                     context = context,
-                                    toolbarColor = toolbarColor
+                                    toolbarColor = toolbarColor,
+                                    navigateToReaderViewer = onNavigateToLink,
                                 )
                             }
                         )
@@ -502,6 +505,7 @@ fun onLinkClick(
     linkOpener: LinkOpener,
     context: Context,
     @ColorInt toolbarColor: Int,
+    navigateToReaderViewer: (String) -> Unit,
 ) {
     when (linkOpener) {
         LinkOpener.CUSTOM_TAB -> {
@@ -509,6 +513,9 @@ fun onLinkClick(
         }
         LinkOpener.DEFAULT_BROWSER -> {
             openLinkInBrowser(context, link)
+        }
+        LinkOpener.READER_VIEWER -> {
+            navigateToReaderViewer(link)
         }
     }
 }
