@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -91,6 +92,7 @@ import com.nononsenseapps.feeder.db.room.ID_UNSET
 import com.nononsenseapps.feeder.model.TextToSpeechViewModel
 import com.nononsenseapps.feeder.model.opml.exportOpml
 import com.nononsenseapps.feeder.model.opml.importOpml
+import com.nononsenseapps.feeder.ui.compose.components.safeSemantics
 import com.nononsenseapps.feeder.ui.compose.deletefeed.DeletableFeed
 import com.nononsenseapps.feeder.ui.compose.deletefeed.DeleteFeedDialog
 import com.nononsenseapps.feeder.ui.compose.navdrawer.DrawerFeed
@@ -409,6 +411,10 @@ fun FeedScreen(
                     Text(
                         screenTitle,
                         maxLines = 2,
+                        modifier = Modifier
+                            .safeSemantics {
+                                testTag = "appBarTitle"
+                            }
                     )
                 },
                 contentPadding = rememberInsetsPaddingValues(
@@ -459,7 +465,13 @@ fun FeedScreen(
                     }
 
                     Box {
-                        IconButton(onClick = { showMenu = true }) {
+                        IconButton(
+                            onClick = { showMenu = true },
+                            modifier = Modifier
+                                .safeSemantics {
+                                    testTag = "menuButton"
+                                }
+                        ) {
                             Icon(
                                 Icons.Default.MoreVert,
                                 contentDescription = stringResource(R.string.open_menu),
@@ -467,13 +479,21 @@ fun FeedScreen(
                         }
                         DropdownMenu(
                             expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
+                            onDismissRequest = { showMenu = false },
+                            modifier = Modifier
+                                .safeSemantics {
+                                    testTag = "menu"
+                                }
                         ) {
                             DropdownMenuItem(
                                 onClick = {
                                     showMenu = false
                                     onAddFeed()
-                                }
+                                },
+                                modifier = Modifier
+                                    .safeSemantics {
+                                        testTag = "menuAddFeed"
+                                    }
                             ) {
                                 Icon(
                                     Icons.Default.Add,
@@ -490,7 +510,11 @@ fun FeedScreen(
                                         showEditDialog = true
                                     }
                                     showMenu = false
-                                }
+                                },
+                                modifier = Modifier
+                                    .safeSemantics {
+                                        testTag = "menuEditFeed"
+                                    }
                             ) {
                                 Icon(
                                     Icons.Default.Edit,
@@ -503,7 +527,11 @@ fun FeedScreen(
                                 onClick = {
                                     showDeleteDialog = true
                                     showMenu = false
-                                }
+                                },
+                                modifier = Modifier
+                                    .safeSemantics {
+                                        testTag = "menuDeleteFeed"
+                                    }
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
@@ -517,7 +545,11 @@ fun FeedScreen(
                                 onClick = {
                                     showMenu = false
                                     onImport()
-                                }
+                                },
+                                modifier = Modifier
+                                    .safeSemantics {
+                                        testTag = "menuImportFeeds"
+                                    }
                             ) {
                                 Icon(
                                     Icons.Default.ImportExport,
@@ -531,7 +563,11 @@ fun FeedScreen(
                                 onClick = {
                                     showMenu = false
                                     onExport()
-                                }
+                                },
+                                modifier = Modifier
+                                    .safeSemantics {
+                                        testTag = "menuExportFeeds"
+                                    }
                             ) {
                                 Icon(
                                     Icons.Default.ImportExport,
@@ -545,7 +581,11 @@ fun FeedScreen(
                                 onClick = {
                                     showMenu = false
                                     onSettings()
-                                }
+                                },
+                                modifier = Modifier
+                                    .safeSemantics {
+                                        testTag = "menuSettings"
+                                    }
                             ) {
                                 Icon(
                                     Icons.Default.Settings,
@@ -559,7 +599,11 @@ fun FeedScreen(
                                 onClick = {
                                     showMenu = false
                                     onSendFeedback()
-                                }
+                                },
+                                modifier = Modifier
+                                    .safeSemantics {
+                                        testTag = "menuSendBugReport"
+                                    }
                             ) {
                                 Icon(
                                     Icons.Default.Email,

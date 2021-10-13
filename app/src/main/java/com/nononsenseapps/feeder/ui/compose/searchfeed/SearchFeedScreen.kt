@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,6 +49,7 @@ import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.ui.Scaffold
 import com.google.accompanist.insets.ui.TopAppBar
 import com.nononsenseapps.feeder.R
+import com.nononsenseapps.feeder.ui.compose.components.safeSemantics
 import com.nononsenseapps.feeder.ui.compose.theme.LocalDimens
 import com.nononsenseapps.feeder.util.sloppyLinkToStrictURLNoThrows
 import java.net.MalformedURLException
@@ -211,6 +213,9 @@ fun SearchFeedView(
                 colors = TextFieldDefaults.textFieldColors(),
                 modifier = Modifier
                     .width(dimens.maxContentWidth)
+                    .safeSemantics {
+                        testTag = "urlField"
+                    }
             )
         }
         item {
@@ -268,6 +273,9 @@ fun SearchingIndicator() {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxWidth()
+            .safeSemantics {
+                testTag = "searchingIndicator"
+            }
     ) {
         CircularProgressIndicator()
     }
@@ -286,6 +294,9 @@ fun SearchResultView(
         modifier = Modifier
             .width(dimens.maxContentWidth)
             .clickable(onClick = onClick)
+            .safeSemantics {
+                testTag = "searchResult"
+            }
     ) {
         Text(
             title,

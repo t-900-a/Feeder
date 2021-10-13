@@ -1,11 +1,30 @@
 package com.nononsenseapps.feeder.ui.robots
 
-fun <R> feedScreen(block: FeedScreenRobot.() -> R): R {
-    return FeedScreenRobot().block()
-}
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.ComposeTestRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import com.nononsenseapps.feeder.ui.compose.BaseComposeTest
 
-class FeedScreenRobot: AndroidRobot() {
-    fun openOverflowMenu(): FeedScreenMenuRobot {
-        TODO("Not yet implemented")
+fun BaseComposeTest.feedScreen(block: FeedScreenRobot.() -> Unit) =
+    FeedScreenRobot(composeTestRule).apply { block() }
+
+class FeedScreenRobot(
+    private val testRule: ComposeTestRule,
+) : AndroidRobot() {
+    fun assertAppBarTitleIs(title: String) {
+        testRule.onNodeWithTag("appBarTitle")
+            .assertIsDisplayed()
+            .assert(hasText(title))
+    }
+
+    infix fun openOverflowMenu(block: FeedScreenMenuRobot.() -> Unit): FeedScreenMenuRobot {
+        testRule.onNodeWithTag("menuButton")
+            .assertIsDisplayed()
+            .performClick()
+
+        return FeedScreenMenuRobot(testRule).apply { block() }
     }
 }
