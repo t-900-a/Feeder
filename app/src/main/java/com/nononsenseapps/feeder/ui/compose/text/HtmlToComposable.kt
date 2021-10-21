@@ -1,7 +1,9 @@
 package com.nononsenseapps.feeder.ui.compose.text
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,18 +20,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -36,8 +44,11 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import coil.size.OriginalSize
 import coil.size.PixelSize
@@ -54,6 +65,7 @@ import com.nononsenseapps.feeder.ui.compose.theme.LocalDimens
 import com.nononsenseapps.feeder.ui.text.Video
 import com.nononsenseapps.feeder.ui.text.getVideo
 import java.io.InputStream
+import kotlin.math.max
 import kotlin.math.roundToInt
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -89,33 +101,35 @@ private fun LazyListScope.formatBody(
 
             // ClickableText prevents taps from deselecting selected text
             // So use regular Text if possible
-            if (paragraph.getStringAnnotations("URL", 0, paragraph.length)
-                    .isNotEmpty()
-            ) {
-                ClickableText(
-                    text = paragraph,
-                    style = MaterialTheme.typography.body1
-                        .merge(TextStyle(color = MaterialTheme.colors.onBackground)),
-                    modifier = Modifier
-                        .padding(horizontal = dimens.margin)
-                        .width(dimens.maxContentWidth)
-                ) { offset ->
-                    paragraph.getStringAnnotations("URL", offset, offset)
-                        .firstOrNull()
-                        ?.let {
-                            onLinkClick(it.item)
-                        }
-                }
-            } else {
-                Text(
-                    text = paragraph,
-                    style = MaterialTheme.typography.body1
-                        .merge(TextStyle(color = MaterialTheme.colors.onBackground)),
-                    modifier = Modifier
-                        .padding(horizontal = dimens.margin)
-                        .width(dimens.maxContentWidth)
-                )
-            }
+//            if (paragraph.getStringAnnotations("URL", 0, paragraph.length)
+//                    .isNotEmpty()
+//            ) {
+//                ClickableText(
+//                    text = paragraph,
+//                    style = MaterialTheme.typography.body1
+//                        .merge(TextStyle(color = MaterialTheme.colors.onBackground)),
+//                    modifier = Modifier
+//                        .padding(horizontal = dimens.margin)
+//                        .width(dimens.maxContentWidth)
+//                ) { offset ->
+//                    paragraph.getStringAnnotations("URL", offset, offset)
+//                        .firstOrNull()
+//                        ?.let {
+//                            onLinkClick(it.item)
+//                        }
+//                }
+//            } else {
+            // inlineContent: Map<String, InlineTextContent> = mapOf(),
+            Text(
+                text = paragraph,
+                style = MaterialTheme.typography.body1
+                    .merge(TextStyle(color = MaterialTheme.colors.onBackground)),
+                inlineContent = paragraphBuilder.inlineContents,
+                modifier = Modifier
+                    .padding(horizontal = dimens.margin)
+                    .width(dimens.maxContentWidth)
+            )
+//            }
         }
     }
 
@@ -178,7 +192,7 @@ private fun TextComposer.appendTextChildren(
     onLinkClick: (String) -> Unit,
 ) {
     var node = nodes.firstOrNull()
-    while (node!=null) {
+    while (node != null) {
         when (node) {
             is TextNode -> {
                 if (preFormatted) {
@@ -360,7 +374,7 @@ private fun TextComposer.appendTextChildren(
                         )
                     }
                     "code" -> {
-                        if (element.parent()?.tagName()=="pre") {
+                        if (element.parent()?.tagName() == "pre") {
                             terminateCurrentText()
                             lazyListScope.formatCodeBlock(
                                 element = element,
@@ -410,6 +424,48 @@ private fun TextComposer.appendTextChildren(
                             }
                         }
                     }
+                    "ruby" -> {
+                        val bottomText = element.ownText()
+                        val topText = element.children()
+                            .first { it.tagName().equals("rt", ignoreCase = true) }
+                            ?.text()
+
+                        if (topText != null) {
+                            appendInline(
+                                bottomText,
+                                InlineTextContent(
+                                    Placeholder(
+                                        width = (bottomText.length).em,
+                                        height = 2.5.em,
+                                        placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+                                    )
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.BottomCenter,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .border(1.dp, Color.Red)
+                                    ) {
+                                        Column {
+                                            Text(
+                                                topText,
+                                                fontSize = 10.sp,
+                                                softWrap = false,
+                                                overflow = TextOverflow.Visible,
+                                            )
+                                            Text(
+                                                bottomText,
+                                                softWrap = false,
+                                                overflow = TextOverflow.Visible,
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        } else {
+                            append(bottomText)
+                        }
+                    }
                     "img" -> {
                         val imageUrl = element.attr("abs:src") ?: ""
                         if (imageUrl.isNotBlank()) {
@@ -428,7 +484,7 @@ private fun TextComposer.appendTextChildren(
                                                 modifier = Modifier
                                                     .clip(RectangleShape)
                                                     .clickable(
-                                                        enabled = onClick!=null
+                                                        enabled = onClick != null
                                                     ) {
                                                         onClick?.invoke()
                                                     }
@@ -483,7 +539,7 @@ private fun TextComposer.appendTextChildren(
                     }
                     "ul" -> {
                         element.children()
-                            .filter { it.tagName()=="li" }
+                            .filter { it.tagName() == "li" }
                             .forEach { listItem ->
                                 withParagraph {
                                     // no break space
@@ -499,7 +555,7 @@ private fun TextComposer.appendTextChildren(
                     }
                     "ol" -> {
                         element.children()
-                            .filter { it.tagName()=="li" }
+                            .filter { it.tagName() == "li" }
                             .forEachIndexed { i, listItem ->
                                 withParagraph {
                                     // no break space
@@ -525,7 +581,7 @@ private fun TextComposer.appendTextChildren(
                             followed optionally by a tfoot element
                              */
                             element.children()
-                                .filter { it.tagName()=="caption" }
+                                .filter { it.tagName() == "caption" }
                                 .forEach {
                                     appendTextChildren(
                                         it.childNodes(),
@@ -538,10 +594,10 @@ private fun TextComposer.appendTextChildren(
                                 }
 
                             element.children()
-                                .filter { it.tagName()=="thead" || it.tagName()=="tbody" || it.tagName()=="tfoot" }
+                                .filter { it.tagName() == "thead" || it.tagName() == "tbody" || it.tagName() == "tfoot" }
                                 .flatMap {
                                     it.children()
-                                        .filter { it.tagName()=="tr" }
+                                        .filter { it.tagName() == "tr" }
                                 }
                                 .forEach { row ->
                                     appendTextChildren(
@@ -559,7 +615,7 @@ private fun TextComposer.appendTextChildren(
                     "iframe" -> {
                         val video: Video? = getVideo(element.attr("abs:src"))
 
-                        if (video!=null) {
+                        if (video != null) {
                             appendImage(onLinkClick = onLinkClick) {
                                 lazyListScope.item {
                                     val dimens = LocalDimens.current

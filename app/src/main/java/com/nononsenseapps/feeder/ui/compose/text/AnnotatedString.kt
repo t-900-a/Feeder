@@ -1,13 +1,18 @@
 package com.nononsenseapps.feeder.ui.compose.text
 
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import java.util.*
+import kotlin.NoSuchElementException
 
 class AnnotatedParagraphStringBuilder {
     // Private for a reason
     private val builder: AnnotatedString.Builder = AnnotatedString.Builder()
 
+    val inlineContents = mutableMapOf<String, InlineTextContent>()
     private val poppedComposableStyles = mutableListOf<ComposableStyleWithStartEnd>()
     val composableStyles = mutableListOf<ComposableStyleWithStartEnd>()
     val lastTwoChars: MutableList<Char> = mutableListOf()
@@ -72,6 +77,16 @@ class AnnotatedParagraphStringBuilder {
     fun append(char: Char) {
         lastTwoChars.pushMaxTwo(char)
         builder.append(char)
+    }
+
+    fun appendInline(
+        placeHolder: String,
+        inlineContent: InlineTextContent,
+    ) {
+        val id = UUID.randomUUID().toString()
+        // TODO lastTwoChars
+        inlineContents[id] = inlineContent
+        builder.appendInlineContent(id, placeHolder)
     }
 
     @Composable

@@ -1,6 +1,7 @@
 package com.nononsenseapps.feeder.ui.compose.text
 
 import android.util.Log
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.SpanStyle
 
@@ -45,6 +46,11 @@ class TextComposer(
 
     fun append(char: Char) =
         builder.append(char)
+
+    fun appendInline(
+        placeHolder: String,
+        inlineContent: InlineTextContent,
+    ) = builder.appendInline(placeHolder, inlineContent)
 
     fun <R> appendTable(block: () -> R): R {
         builder.ensureDoubleNewline()
