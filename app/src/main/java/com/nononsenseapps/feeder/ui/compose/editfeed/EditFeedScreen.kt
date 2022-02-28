@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
+import com.google.accompanist.insets.ui.LocalScaffoldPadding
 import com.google.accompanist.insets.ui.Scaffold
 import com.google.accompanist.insets.ui.TopAppBar
 import com.nononsenseapps.feeder.R
@@ -61,6 +62,7 @@ import com.nononsenseapps.feeder.ui.compose.settings.RadioButtonSetting
 import com.nononsenseapps.feeder.ui.compose.settings.SwitchSetting
 import com.nononsenseapps.feeder.ui.compose.theme.FeederTheme
 import com.nononsenseapps.feeder.ui.compose.theme.LocalDimens
+import com.nononsenseapps.feeder.ui.compose.utils.IsSystemBarOnBottom
 
 @Composable
 fun CreateFeedScreen(
@@ -134,11 +136,14 @@ fun EditFeedScreen(
 ) {
     Scaffold(
         // In case device is rotated to landscape and navigation bar ends up on the side
-        contentPadding = rememberInsetsPaddingValues(
-            insets = LocalWindowInsets.current.navigationBars,
-            applyBottom = false,
-            applyTop = false,
-        ),
+        contentPadding = when (IsSystemBarOnBottom()) {
+            true -> LocalScaffoldPadding.current
+            false -> rememberInsetsPaddingValues(
+                insets = LocalWindowInsets.current.navigationBars,
+                applyBottom = false,
+                applyTop = false,
+            )
+        },
         topBar = {
             TopAppBar(
                 title = {

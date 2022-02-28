@@ -74,6 +74,7 @@ import coil.size.Scale
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.rememberInsetsPaddingValues
+import com.google.accompanist.insets.ui.LocalScaffoldPadding
 import com.google.accompanist.insets.ui.Scaffold
 import com.google.accompanist.insets.ui.TopAppBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -93,6 +94,7 @@ import com.nononsenseapps.feeder.ui.compose.navdrawer.DrawerTag
 import com.nononsenseapps.feeder.ui.compose.navdrawer.DrawerTop
 import com.nononsenseapps.feeder.ui.compose.navdrawer.ListOfFeedsAndTags
 import com.nononsenseapps.feeder.ui.compose.readaloud.HideableReadAloudPlayer
+import com.nononsenseapps.feeder.ui.compose.utils.IsSystemBarOnBottom
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.threeten.bp.Instant
@@ -293,11 +295,14 @@ fun FeedScreen(
 
     Scaffold(
         scaffoldState = scaffoldState,
-        contentPadding = rememberInsetsPaddingValues(
-            insets = LocalWindowInsets.current.navigationBars,
-            applyBottom = false,
-            applyTop = false,
-        ),
+        contentPadding = when (IsSystemBarOnBottom()) {
+            true -> LocalScaffoldPadding.current
+            false -> rememberInsetsPaddingValues(
+                insets = LocalWindowInsets.current.navigationBars,
+                applyBottom = false,
+                applyTop = false,
+            )
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -634,11 +639,14 @@ fun ScreenWithFeedList(
 
     Scaffold(
         scaffoldState = scaffoldState,
-        contentPadding = rememberInsetsPaddingValues(
-            insets = LocalWindowInsets.current.navigationBars,
-            applyBottom = false,
-            applyTop = false,
-        ),
+        contentPadding = when (IsSystemBarOnBottom()) {
+            true -> LocalScaffoldPadding.current
+            false -> rememberInsetsPaddingValues(
+                insets = LocalWindowInsets.current.navigationBars,
+                applyBottom = false,
+                applyTop = false,
+            )
+        },
         topBar = {
             TopAppBar(
                 title = {

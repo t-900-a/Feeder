@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.rememberInsetsPaddingValues
+import com.google.accompanist.insets.ui.LocalScaffoldPadding
 import com.google.accompanist.insets.ui.Scaffold
 import com.google.accompanist.insets.ui.TopAppBar
 import com.nononsenseapps.feeder.BuildConfig
@@ -70,6 +71,7 @@ import com.nononsenseapps.feeder.ui.compose.theme.FeederTheme
 import com.nononsenseapps.feeder.ui.compose.theme.LinkTextStyle
 import com.nononsenseapps.feeder.ui.compose.theme.LocalDimens
 import com.nononsenseapps.feeder.ui.compose.utils.BackHandler
+import com.nononsenseapps.feeder.ui.compose.utils.IsSystemBarOnBottom
 import com.nononsenseapps.feeder.ui.compose.utils.WindowSize
 import com.nononsenseapps.feeder.util.DEEP_LINK_BASE_URI
 import com.nononsenseapps.feeder.util.KOFI_URL
@@ -89,11 +91,14 @@ private fun SyncScaffold(
         mutableStateOf(false)
     }
     Scaffold(
-        contentPadding = rememberInsetsPaddingValues(
-            insets = LocalWindowInsets.current.navigationBars,
-            applyBottom = false,
-            applyTop = false,
-        ),
+        contentPadding = when (IsSystemBarOnBottom()) {
+            true -> LocalScaffoldPadding.current
+            false -> rememberInsetsPaddingValues(
+                insets = LocalWindowInsets.current.navigationBars,
+                applyBottom = false,
+                applyTop = false,
+            )
+        },
         topBar = {
             TopAppBar(
                 title = {

@@ -49,12 +49,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
+import com.google.accompanist.insets.ui.LocalScaffoldPadding
 import com.google.accompanist.insets.ui.Scaffold
 import com.google.accompanist.insets.ui.TopAppBar
 import com.nononsenseapps.feeder.R
 import com.nononsenseapps.feeder.ui.compose.components.safeSemantics
 import com.nononsenseapps.feeder.ui.compose.modifiers.interceptKey
 import com.nononsenseapps.feeder.ui.compose.theme.LocalDimens
+import com.nononsenseapps.feeder.ui.compose.utils.IsSystemBarOnBottom
 import com.nononsenseapps.feeder.util.sloppyLinkToStrictURLNoThrows
 import java.net.MalformedURLException
 import java.net.URL
@@ -71,11 +73,14 @@ fun SearchFeedScreen(
     onClick: (SearchResult) -> Unit,
 ) {
     Scaffold(
-        contentPadding = rememberInsetsPaddingValues(
-            insets = LocalWindowInsets.current.navigationBars,
-            applyBottom = false,
-            applyTop = false,
-        ),
+        contentPadding = when (IsSystemBarOnBottom()) {
+            true -> LocalScaffoldPadding.current
+            false -> rememberInsetsPaddingValues(
+                insets = LocalWindowInsets.current.navigationBars,
+                applyBottom = false,
+                applyTop = false,
+            )
+        },
         topBar = {
             TopAppBar(
                 title = {
