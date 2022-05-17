@@ -45,9 +45,16 @@ validate_deployment:
     - source devenv && ./deploy_playstore.sh --dry-run
   needs: []
   only:
-    - compose
     - master
     - tags
+
+deploy_fdroid_repo:
+  stage: deploy
+  #needs: ["validate_deployment", "compile", "lint", "test"]
+  only:
+    - repo_trigger
+    - tags
+  trigger: spacecowboy/nononsenseapps-fdroid-repo-secret
 
 deploy_playstore:
   stage: deploy
