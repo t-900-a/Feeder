@@ -10,7 +10,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
   <permission
-    android:name="com.nononsenseapps.feeder.rssprovider.permission.read"
+    android:name="vnd.rssprovider.permission.read"
     android:description="@string/permission_read_desc"
     android:label="@string/permission_read_label"
     android:permissionGroup="android.permission-group.PERSONAL_INFO" />
@@ -170,6 +170,6 @@
       android:name=".contentprovider.RSSContentProvider"
       android:authorities="com.nononsenseapps.feeder.rssprovider"
       android:exported="true"
-      android:readPermission="com.nononsenseapps.feeder.rssprovider.permission.read" />
+      android:readPermission="vnd.rssprovider.permission.read" />
   </application>
 </manifest>
